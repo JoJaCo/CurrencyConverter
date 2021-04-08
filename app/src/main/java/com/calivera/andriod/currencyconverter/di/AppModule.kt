@@ -1,10 +1,15 @@
 package com.calivera.andriod.currencyconverter.di
 
 import com.calivera.andriod.currencyconverter.data.models.CurrencyApi
+import com.calivera.andriod.currencyconverter.main.DefaultMainRepository
+import com.calivera.andriod.currencyconverter.main.MainRepository
+import com.calivera.andriod.currencyconverter.util.DispatcherProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ApplicationComponent
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
@@ -25,5 +30,26 @@ object AppModule {
         .addConverterFactory(GsonConverterFactory.create())
         .build()
         .create(CurrencyApi::class.java)
+
+
+    @Singleton
+    @Provides
+    fun provideMainRepository(api: CurrencyApi): MainRepository = DefaultMainRepository(api)
+
+    @Singleton
+    @Provides
+    fun provideDispatchers(): DispatcherProvider = object : DispatcherProvider{
+        override val main: CoroutineDispatcher
+            get() = Dispatchers.Main
+        override val io: CoroutineDispatcher
+            get() = Dispatchers.IO
+        override val default: CoroutineDispatcher
+            get() = Dispatchers.Default
+        override val unconfined: CoroutineDispatcher
+            get() = Dispatchers.Unconfined
+    }
+
+
+
 
 }
